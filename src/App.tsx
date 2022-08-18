@@ -1,61 +1,79 @@
-import { Box, Toolbar, Typography } from '@mui/material';
+import { Box, Button, Toolbar, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import React from 'react';
 import DrawerAppBar from './components/AppBar';
+import SwipeableViews from 'react-swipeable-views'
+import { autoPlay } from 'react-swipeable-views-utils'
+
+axios.defaults.withCredentials = true;
+
+interface Carousel {
+  id: number;
+  image: string;
+  label: string;
+}
+
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 export default function App(): JSX.Element {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const theme = useTheme();
+  const [mobileOpen, setMobileOpen] = React.useState<boolean>(false);
+  const [carousels, setCarousels] = React.useState<Array<Carousel>>([])
+  const [activeStep, setActiveStep] = React.useState(0);
+  const maxSteps = carousels.length;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   React.useEffect(() => {
-    getCarousel();
-  }, []);
+    getCarousel()
+  }, [])
 
-  async function getCarousel(): Promise<void> {
-    await axios.get('http://localhost:3000/carousel/').then((res) => console.log(res.data))
+  const getCarousel = async () => {
+    await axios.get('http://localhost:8000/carousel/').then(({ data }) => {
+      setCarousels([])
+      data.map((el: Carousel) => (
+        setCarousels((prev) => ([...prev, el]))
+      ))
+    })
   }
+
+  const handleStepChange = (step: number) => {
+    setActiveStep(step);
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <DrawerAppBar handleDrawerToggle={handleDrawerToggle} mobileOpen={mobileOpen} />
-      <Box component="main" sx={{ p: 3 }}>
-        <Toolbar />
-        <Typography>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique unde
-          fugit veniam eius, perspiciatis sunt? Corporis qui ducimus quibusdam,
-          aliquam dolore excepturi quae. Distinctio enim at eligendi perferendis in
-          cum quibusdam sed quae, accusantium et aperiam? Quod itaque exercitationem,
-          at ab sequi qui modi delectus quia corrupti alias distinctio nostrum.
-          Minima ex dolor modi inventore sapiente necessitatibus aliquam fuga et. Sed
-          numquam quibusdam at officia sapiente porro maxime corrupti perspiciatis
-          asperiores, exercitationem eius nostrum consequuntur iure aliquam itaque,
-          assumenda et! Quibusdam temporibus beatae doloremque voluptatum doloribus
-          soluta accusamus porro reprehenderit eos inventore facere, fugit, molestiae
-          ab officiis illo voluptates recusandae. Vel dolor nobis eius, ratione atque
-          soluta, aliquam fugit qui iste architecto perspiciatis. Nobis, voluptatem!
-          Cumque, eligendi unde aliquid minus quis sit debitis obcaecati error,
-          delectus quo eius exercitationem tempore. Delectus sapiente, provident
-          corporis dolorum quibusdam aut beatae repellendus est labore quisquam
-          praesentium repudiandae non vel laboriosam quo ab perferendis velit ipsa
-          deleniti modi! Ipsam, illo quod. Nesciunt commodi nihil corrupti cum non
-          fugiat praesentium doloremque architecto laborum aliquid. Quae, maxime
-          recusandae? Eveniet dolore molestiae dicta blanditiis est expedita eius
-          debitis cupiditate porro sed aspernatur quidem, repellat nihil quasi
-          praesentium quia eos, quibusdam provident. Incidunt tempore vel placeat
-          voluptate iure labore, repellendus beatae quia unde est aliquid dolor
-          molestias libero. Reiciendis similique exercitationem consequatur, nobis
-          placeat illo laudantium! Enim perferendis nulla soluta magni error,
-          provident repellat similique cupiditate ipsam, et tempore cumque quod! Qui,
-          iure suscipit tempora unde rerum autem saepe nisi vel cupiditate iusto.
-          Illum, corrupti? Fugiat quidem accusantium nulla. Aliquid inventore commodi
-          reprehenderit rerum reiciendis! Quidem alias repudiandae eaque eveniet
-          cumque nihil aliquam in expedita, impedit quas ipsum nesciunt ipsa ullam
-          consequuntur dignissimos numquam at nisi porro a, quaerat rem repellendus.
-          Voluptates perspiciatis, in pariatur impedit, nam facilis libero dolorem
-          dolores sunt inventore perferendis, aut sapiente modi nesciunt.
-        </Typography>
+      <Box component="main">
+        <AutoPlaySwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={activeStep}
+          onChangeIndex={handleStepChange}
+          enableMouseEvents
+          interval={10000}
+        >
+          {carousels.map((step, index) => (
+            <div key={step.label}>
+              {Math.abs(activeStep - index) <= 2 ? (
+                <Box
+                  component="img"
+                  sx={{
+                    height: '100vh',
+                    display: 'block',
+                    overflow: 'hidden',
+                    width: '100%',
+                  }}
+                  src={'http://localhost:8000/carousels/' + step.image}
+                  alt={step.label}
+                />
+              ) : null}
+              <h1>{step.label}</h1>
+            </div>
+          ))}
+        </AutoPlaySwipeableViews>
       </Box>
     </Box>
   );
