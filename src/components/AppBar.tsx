@@ -1,28 +1,26 @@
 import MenuIcon from '@mui/icons-material/Menu'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import * as React from 'react'
-import CustomDrawer from './Drawer'
 // import Logo from "../assets/logoGKJWSegaranDlanggu.svg";
 
 
 interface Props {
       handleDrawerToggle: React.MouseEventHandler<HTMLButtonElement | HTMLDivElement> | undefined;
       mobileOpen: boolean;
+	children?: JSX.Element[];
 }
 
-const navItems = ['Tentang', 'Konten', 'Jadwal Pelayan']
 
-export default function DrawerAppBar(props: Props) {
-	const { handleDrawerToggle, mobileOpen } = props
+export default function CustomAppBar(props: Props) {
+	const { handleDrawerToggle, children } = props
       
 	return (
 		<>
-			<AppBar component="nav" sx={{ bgcolor: '#1E1E1E'}}>
+			<AppBar component="nav" sx={{ bgcolor: '#172121'}}>
 				<Toolbar>
 					<IconButton
 						color="inherit"
@@ -42,15 +40,10 @@ export default function DrawerAppBar(props: Props) {
                                     Youth Segaran Dlanggu
 					</Typography>
 					<Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-						{navItems.map((item) => (
-							<Button key={item} sx={{ color: '#fff' }}>
-								{item}
-							</Button>
-						))}
+						{children}
 					</Box>
 				</Toolbar>
 			</AppBar>
-			<CustomDrawer navItems={navItems} handleDrawerToggle={handleDrawerToggle} mobileOpen={mobileOpen} />
 		</>
 	)
 }
