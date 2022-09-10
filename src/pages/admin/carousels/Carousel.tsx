@@ -1,139 +1,142 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow } from '@mui/material'
-import axios, { AxiosResponse } from 'axios'
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import Swal from 'sweetalert2'
-import { EnhancedTableHead, EnhancedTableToolbar, getComparator, HeadCell, Order, stableSort } from '../../../components/DataTable'
-import CustomizedDialogs from '../../../components/Dialog'
-import toastSwal from '../../../components/swal/toastSwal'
-import { apiUrl, rootUrl } from '../../../utils/config'
-import moment from 'moment'
+import { Box, Checkbox, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow } from '@mui/material';
+import axios, { AxiosResponse } from 'axios';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { EnhancedTableHead, EnhancedTableToolbar, getComparator, HeadCell, Order, stableSort } from '../../../components/DataTable';
+import CustomizedDialogs from '../../../components/Dialog';
+import toastSwal from '../../../components/swal/toastSwal';
+import { deleteCarousel as hapusCarousel, deleteManyCarousel, getAllCarousel, getCarousel, rootUrl } from '../../../utils/apiConstants';
+import moment from 'moment';
 
 const Carousel = () => {
-	const navigate = useNavigate()
-	const [carousels, setCarousels] = React.useState<Array<CarouselData>>([])
-	const [order, setOrder] = React.useState<Order>('asc')
-	const [orderBy, setOrderBy] = React.useState<keyof CarouselData>('index')
-	const [selected, setSelected] = React.useState<readonly string[]>([])
-	const [page, setPage] = React.useState(0)
-	const [rowsPerPage, setRowsPerPage] = React.useState(5)
-	const [dialogOpen, setDialogOpen] = React.useState<boolean>(false)
-	const [preview, setPreview] = React.useState<any>()
+	const navigate = useNavigate();
+	const [loading, setLoading] = React.useState<boolean>(false);
+	const [carousels, setCarousels] = React.useState<Array<CarouselData>>([]);
+	const [order, setOrder] = React.useState<Order>('asc');
+	const [orderBy, setOrderBy] = React.useState<keyof CarouselData>('index');
+	const [selected, setSelected] = React.useState<readonly string[]>([]);
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+	const [preview, setPreview] = React.useState<any>();
 
 	const handleRequestSort = (
 		event: React.MouseEvent<unknown>,
 		property: keyof CarouselData,
 	) => {
-		const isAsc = orderBy === property && order === 'asc'
-		setOrder(isAsc ? 'desc' : 'asc')
-		setOrderBy(property)
-	}
+		const isAsc = orderBy === property && order === 'asc';
+		setOrder(isAsc ? 'desc' : 'asc');
+		setOrderBy(property);
+	};
 
 	const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			const newSelected = carousels.map((n) => n.id)
-			setSelected(newSelected)
-			return
+			const newSelected = carousels.map((n) => n.id);
+			setSelected(newSelected);
+			return;
 		}
-		setSelected([])
-	}
+		setSelected([]);
+	};
 
 	const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-		const selectedIndex = selected.indexOf(name)
-		let newSelected: readonly string[] = []
+		const selectedIndex = selected.indexOf(name);
+		let newSelected: readonly string[] = [];
 
 		if (selectedIndex === -1) {
-			newSelected = newSelected.concat(selected, name)
+			newSelected = newSelected.concat(selected, name);
 		} else if (selectedIndex === 0) {
-			newSelected = newSelected.concat(selected.slice(1))
+			newSelected = newSelected.concat(selected.slice(1));
 		} else if (selectedIndex === selected.length - 1) {
-			newSelected = newSelected.concat(selected.slice(0, -1))
+			newSelected = newSelected.concat(selected.slice(0, -1));
 		} else if (selectedIndex > 0) {
 			newSelected = newSelected.concat(
 				selected.slice(0, selectedIndex),
 				selected.slice(selectedIndex + 1),
-			)
+			);
 		}
-		setSelected(newSelected)
-	}
+		setSelected(newSelected);
+	};
 
 	const handleChangePage = (event: unknown, newPage: number) => {
-		setPage(newPage)
-	}
+		setPage(newPage);
+	};
 
 	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setRowsPerPage(parseInt(event.target.value, 10))
-		setPage(0)
-	}
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 
-	const isSelected = (name: string) => selected.indexOf(name) !== -1
+	const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
 	// Avoid a layout jump when reaching the last page with empty rows.
 	const emptyRows =
-            page > 0 ? Math.max(0, (1 + page) * rowsPerPage - carousels.length) : 0
+            page > 0 ? Math.max(0, (1 + page) * rowsPerPage - carousels.length) : 0;
 
 	React.useEffect(() => {
-		getCarousels()
-	}, [])
+		getCarousels();
+	}, []);
 
 	const handleCloseDialog = () => {
-		setSelected([])
-		setDialogOpen(false)
-	}
+		setSelected([]);
+		setDialogOpen(false);
+	};
 
 	const getCarousels = async (): Promise<void> => {
-		await axios.get(`${apiUrl}carousel/getAll`).then((res: AxiosResponse<any, any>) => {
-			const data: [] = res.data
-			setCarousels([])
+		setLoading(true);
+		await axios.get(getAllCarousel).then((res: AxiosResponse<any, any>) => {
+			const data: [] = res.data;
+			setCarousels([]);
 			data.map((el: any, index: number) => {
-				const date = moment(el.created_at).format('DD-MM-YYYY')
+				const date = moment(el.created_at).format('DD-MM-YYYY');
 				setCarousels((prev) => [...prev, {
 					index: index+1, 
 					label: el.label, 
 					image: el.image, 
 					id: el.id.toString(), 
 					user: `${date} (${el.user.name})`
-				}])
-			})
-		})
-	}
+				}]);
+			});
+			setLoading(false);
+		});
+	};
 
 	const viewCarousel = async (id: number): Promise<void> => {
-		await axios.get(`${apiUrl}carousel/getOne/${id}`).then((res) => {
-			setPreview(res.data)
-			setDialogOpen(true)
-		})
-	}
+		await axios.get(getCarousel + id).then((res) => {
+			setPreview(res.data);
+			setDialogOpen(true);
+		});
+	};
 
 	const deleteCarousel = async (): Promise<void> => {
 		Swal.fire({
-			title: 'Are you sure?',
-			text: 'You won\'t be able to revert this!',
+			title: 'Yakin ingin menghapus data?',
+			text: 'Data tidak dapat dikembalikan setelah dihapus!',
 			icon: 'warning',
 			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'No, cancel!',
+			confirmButtonText: 'Hapus data',
+			cancelButtonText: 'Batalkan',
 			reverseButtons: true
 		}).then(async (result) => {
 			if (result.isConfirmed) {
 				if (selected.length > 1) {
-					const ids = selected.map(str => Number(str))
-					await axios.delete(`${apiUrl}carousel/deleteMany`, {data: { ids }}).then(() => {
-						toastSwal({ icon: 'success', title: 'Your data has been deleted.' })
-						getCarousels()
-						setSelected([])
-					}).catch(err => toastSwal({ icon: 'success', title: err?.data?.message }))
+					const ids = selected.map(str => Number(str));
+					await axios.delete(deleteManyCarousel, {data: { ids }}).then(() => {
+						toastSwal({ icon: 'success', title: 'Data berhasil dihapus!' });
+						getCarousels();
+						setSelected([]);
+					}).catch(err => toastSwal({ icon: 'error', title: err?.data?.message }));
 				} else {
-					await axios.delete(`${apiUrl}carousel/delete/${selected[0]}`).then(() => {
-						toastSwal({ icon: 'success', title: 'Your data has been deleted.' })
-						getCarousels()
-						setSelected([])
-					}).catch(err => toastSwal({ icon: 'success', title: err?.data?.message }))
+					await axios.delete(hapusCarousel + selected[0]).then(() => {
+						toastSwal({ icon: 'success', title: 'Data berhasil dihapus!' });
+						getCarousels();
+						setSelected([]);
+					}).catch(err => toastSwal({ icon: 'error', title: err?.data?.message }));
 				}
 			}
-		})
-	}
+		});
+	};
       
 	return (
 		<Box sx={{ width: '100%' }}>
@@ -146,9 +149,10 @@ const Carousel = () => {
 					onEdit={() => navigate('edit/' + selected[0])} 
 					onDelete={() => deleteCarousel()} 
 				/>
+				{loading && (<LinearProgress />)}
 				<TableContainer>
 					<Table
-						sx={{ minWidth: 750 }}
+						// sx={{ minWidth: 750 }}
 						aria-labelledby="tableTitle"
 						size='medium'
 					>
@@ -170,8 +174,8 @@ const Carousel = () => {
 							{stableSort(carousels, getComparator(order, orderBy))
 								.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 								.map((row, index) => {
-									const isItemSelected = isSelected(row.id)
-									const labelId = `enhanced-table-checkbox-${index}`
+									const isItemSelected = isSelected(row.id);
+									const labelId = `enhanced-table-checkbox-${index}`;
 
 									return (
 										<TableRow
@@ -204,7 +208,7 @@ const Carousel = () => {
 											<TableCell align="left">{row.image}</TableCell>
 											<TableCell align="left">{row.user}</TableCell>
 										</TableRow>
-									)
+									);
 								})}
 							{emptyRows > 0 && (
 								<TableRow
@@ -234,10 +238,10 @@ const Carousel = () => {
 				title={preview?.label}
 				content={<Box component='img' src={`${rootUrl}carousels/${preview?.image}`} width='100%' />} />
 		</Box>
-	)
-}
+	);
+};
 
-export default Carousel
+export default Carousel;
 
 interface CarouselData {
       index: number;
@@ -272,4 +276,4 @@ const headCells: HeadCell[] = [
 		disablePadding: false,
 		label: 'Created',
 	}
-]
+];

@@ -1,83 +1,85 @@
-import { Box, IconButton, MobileStepper, Typography, Grid, Button } from '@mui/material'
-import axios from 'axios'
-import React, { useRef } from 'react'
-import SwipeableViews from 'react-swipeable-views'
-import { autoPlay } from 'react-swipeable-views-utils'
-import CustomAppBar from '../components/AppBar'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
-import { Container } from '@mui/system'
-import YoutubeIframe from '../components/YoutubeIframe'
-import CustomDrawer from '../components/Drawer'
+import { Box, IconButton, MobileStepper, Typography, Grid, Button } from '@mui/material';
+import axios from 'axios';
+import React, { useRef } from 'react';
+import SwipeableViews from 'react-swipeable-views';
+import { autoPlay } from 'react-swipeable-views-utils';
+import CustomAppBar from '../components/AppBar';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Container } from '@mui/system';
+import YoutubeIframe from '../components/YoutubeIframe';
+import CustomDrawer from '../components/Drawer';
+import { getAllCarousel, getAllYoutube } from '../utils/apiConstants';
+import { IYoutube } from '../utils/interfaces';
 
-axios.defaults.withCredentials = true
+axios.defaults.withCredentials = true;
 
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews)
-const navItems = ['Tentang', 'Konten', 'Jadwal Pelayan']
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+const navItems = ['Tentang', 'Konten', 'Jadwal Pelayan'];
 
 
 const Homepage = (): JSX.Element => {
-	const tentangRef = useRef<null | HTMLDivElement>(null)
-	const kontenRef = useRef<null | HTMLDivElement>(null)
-	const jadwalRef = useRef<null | HTMLDivElement>(null)
-	const [mobileOpen, setMobileOpen] = React.useState<boolean>(false)
-	const [carousels, setCarousels] = React.useState<Array<Carousel>>([])
-	const [youtube, setYoutube] = React.useState<Array<Youtube>>([])
-	const [activeStep, setActiveStep] = React.useState(0)
-	const maxSteps = carousels.length
+	const tentangRef = useRef<null | HTMLDivElement>(null);
+	const kontenRef = useRef<null | HTMLDivElement>(null);
+	const jadwalRef = useRef<null | HTMLDivElement>(null);
+	const [mobileOpen, setMobileOpen] = React.useState<boolean>(false);
+	const [carousels, setCarousels] = React.useState<Array<Carousel>>([]);
+	const [youtube, setYoutube] = React.useState<Array<IYoutube>>([]);
+	const [activeStep, setActiveStep] = React.useState(0);
+	const maxSteps = carousels.length;
 
 	const handleDrawerToggle = (): void => {
-		setMobileOpen(!mobileOpen)
-	}
+		setMobileOpen(!mobileOpen);
+	};
 
 	React.useEffect(() => {
-		getCarousel()
-		getYoutube()
-	}, [])
+		getCarousel();
+		getYoutube();
+	}, []);
 
 	const getCarousel = async (): Promise<void> => {
-		await axios.get('http://localhost:8000/api/carousel/getAll').then(({ data }) => {
+		await axios.get(getAllCarousel).then(({ data }) => {
 			// console.log(data)
-			setCarousels([])
+			setCarousels([]);
 			data.map((el: Carousel) => (
 				setCarousels((prev) => ([...prev, el]))
-			))
-		}).catch((error) => console.log(error))
-	}
+			));
+		}).catch((error) => console.log(error));
+	};
 
 	const getYoutube = async (): Promise<void> => {
-		await axios.get('http://localhost:8000/api/youtube/getAll').then(({ data }) => {
-			setYoutube([])
-			data.map((el: Youtube) => {
-				setYoutube((prev) => ([...prev, el]))
-			})
-		})
-	}
+		await axios.get(getAllYoutube).then(({ data }) => {
+			setYoutube([]);
+			data.map((el: IYoutube) => {
+				setYoutube((prev) => ([...prev, el]));
+			});
+		});
+	};
 
 	const handleStepChange = (step: number): void => {
-		setActiveStep(step)
-	}
+		setActiveStep(step);
+	};
 
 	const handleButtonChange = (f: string): void => {
-		if (f == 'back') return setActiveStep((prev) => prev > 0 ? prev - 1 : 0)
-		if (f == 'forward') return setActiveStep((prev) => prev < (carousels.length - 1) ? prev + 1 : (carousels.length - 1))
-	}
+		if (f == 'back') return setActiveStep((prev) => prev > 0 ? prev - 1 : 0);
+		if (f == 'forward') return setActiveStep((prev) => prev < (carousels.length - 1) ? prev + 1 : (carousels.length - 1));
+	};
 
 	const handleNav = (item: string): void => {
 		switch (item) {
 		case 'Tentang':
-			tentangRef.current?.scrollIntoView({ behavior: 'smooth' })
-			break
+			tentangRef.current?.scrollIntoView({ behavior: 'smooth' });
+			break;
 		case 'Konten':
-			kontenRef.current?.scrollIntoView({ behavior: 'smooth' })
-			break
+			kontenRef.current?.scrollIntoView({ behavior: 'smooth' });
+			break;
 		case 'Jadwal Pelayan':
-			jadwalRef.current?.scrollIntoView({ behavior: 'smooth' })
-			break
+			jadwalRef.current?.scrollIntoView({ behavior: 'smooth' });
+			break;
 		default:
-			break
+			break;
 		}
-	}
+	};
 	return (
 		<>
 			<CustomAppBar handleDrawerToggle={handleDrawerToggle} mobileOpen={mobileOpen}>
@@ -203,10 +205,10 @@ const Homepage = (): JSX.Element => {
 			</Box>
 
 		</>
-	)
-}
+	);
+};
 
-export default Homepage
+export default Homepage;
 
 
 
@@ -214,46 +216,4 @@ interface Carousel {
       id: number;
       image: string;
       label: string;
-}
-
-interface Youtube {
-      title: string;
-      description: string;
-      url: string;
-      videoId: string;
-      seconds: number;
-      timestamp: string;
-      duration: Duration;
-      views: number;
-      genre: string;
-      uploadDate: string;
-      ago: string;
-      image: string;
-      thumbnail: string;
-      author: Author;
-      id: number;
-      youtube_id: string;
-      created_at: string;
-      updated_at: string;
-      user: User;
-}
-
-interface Duration {
-      seconds: number;
-      timestamp: string;
-}
-
-interface Author {
-      name: string;
-      url: string;
-}
-
-interface User {
-      id: number;
-      name: string;
-      level: number;
-      email: string;
-      password: string;
-      created_at: string;
-      updated_at: string;
 }

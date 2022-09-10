@@ -1,82 +1,84 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react'
-import { Box, Paper, TableContainer, Table, TableBody, TableRow, TableCell, Checkbox, TablePagination } from '@mui/material'
-import { EnhancedTableToolbar, EnhancedTableHead, Order, stableSort, getComparator, HeadCell } from '../../../components/DataTable'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { apiUrl } from '../../../utils/config'
-import toastSwal from '../../../components/swal/toastSwal'
+import { Box, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow } from '@mui/material';
+import axios from 'axios';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '../../../app/store';
+import { EnhancedTableHead, EnhancedTableToolbar, getComparator, HeadCell, Order, stableSort } from '../../../components/DataTable';
+import toastSwal from '../../../components/swal/toastSwal';
+import { getAllUser } from '../../../utils/apiConstants';
 
 const Users = () => {
-	const navigate = useNavigate()
+	const [users, setUsers] = React.useState<Array<UserData>>([]);
+	const [order, setOrder] = React.useState<Order>('asc');
+	const [orderBy, setOrderBy] = React.useState<keyof UserData>('index');
+	const [selected, setSelected] = React.useState<readonly string[]>([]);
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const user = useSelector((state: RootState) => state.user);
+	const navigate = useNavigate();
 
-	const [users, setUsers] = React.useState<Array<UserData>>([])
-
-	const [order, setOrder] = React.useState<Order>('asc')
-	const [orderBy, setOrderBy] = React.useState<keyof UserData>('index')
-	const [selected, setSelected] = React.useState<readonly string[]>([])
-	const [page, setPage] = React.useState(0)
-	const [rowsPerPage, setRowsPerPage] = React.useState(5)
 
 	const handleRequestSort = (
 		event: React.MouseEvent<unknown>,
 		property: keyof UserData,
-	) => {
-		const isAsc = orderBy === property && order === 'asc'
-		setOrder(isAsc ? 'desc' : 'asc')
-		setOrderBy(property)
-	}
+	): void => {
+		const isAsc = orderBy === property && order === 'asc';
+		setOrder(isAsc ? 'desc' : 'asc');
+		setOrderBy(property);
+	};
 
-	const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		if (event.target.checked) {
-			const newSelected = users.map((n) => n.id)
-			setSelected(newSelected)
-			return
+			const newSelected = users.map((n) => n.id);
+			setSelected(newSelected);
+			return;
 		}
-		setSelected([])
-	}
+		setSelected([]);
+	};
 
-	const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-		const selectedIndex = selected.indexOf(name)
-		let newSelected: readonly string[] = []
+	const handleClick = (event: React.MouseEvent<unknown>, name: string): void => {
+		const selectedIndex = selected.indexOf(name);
+		let newSelected: readonly string[] = [];
 
 		if (selectedIndex === -1) {
-			newSelected = newSelected.concat(selected, name)
+			newSelected = newSelected.concat(selected, name);
 		} else if (selectedIndex === 0) {
-			newSelected = newSelected.concat(selected.slice(1))
+			newSelected = newSelected.concat(selected.slice(1));
 		} else if (selectedIndex === selected.length - 1) {
-			newSelected = newSelected.concat(selected.slice(0, -1))
+			newSelected = newSelected.concat(selected.slice(0, -1));
 		} else if (selectedIndex > 0) {
 			newSelected = newSelected.concat(
 				selected.slice(0, selectedIndex),
 				selected.slice(selectedIndex + 1),
-			)
+			);
 		}
-		setSelected(newSelected)
-	}
+		setSelected(newSelected);
+	};
 
-	const handleChangePage = (event: unknown, newPage: number) => {
-		setPage(newPage)
-	}
+	const handleChangePage = (event: unknown, newPage: number): void => {
+		setPage(newPage);
+	};
 
-	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setRowsPerPage(parseInt(event.target.value, 10))
-		setPage(0)
-	}
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>): void => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 
-	const isSelected = (name: string) => selected.indexOf(name) !== -1
+	const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
 	// Avoid a layout jump when reaching the last page with empty rows.
-	const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0
+	const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
 
 	React.useEffect(() => {
-		getUsers()
-	}, [])
+		getUsers();
+	}, []);
 
 	const getUsers = async (): Promise<void> => {
-		await axios.get(`${apiUrl}user/getAll`).then((res) => {
-			const data: [] = res.data
-			setUsers([])
+		await axios.get(getAllUser).then((res) => {
+			const data: [] = res.data;
+			setUsers([]);
 			data.map((el: any, index: number) => {
 				setUsers((prev) => [...prev, {
 					index: index+1,
@@ -84,20 +86,22 @@ const Users = () => {
 					name: el.name,
 					level: el.level,
 					id: el.id
-				}])
-			})
-		}).catch((err) => toastSwal({icon: 'error', title: err?.data?.message}))
-	}
+				}]);
+			});
+		}).catch((err) => toastSwal({icon: 'error', title: err?.data?.message}));
+	};
 
 	return (
 		<>
 			<Box width='100%'>
 				<Paper sx={{ width: '100%', mb: 2 }}>
 					<EnhancedTableToolbar 
-						numSelected={0} 
-						title='Users Data' 
+						numSelected={selected.length} 
+						title='Users Data'
+						disableEdit={selected.length > 1 || Number(selected[0]) != user.uid}
+						disableDelete={selected.length > 1 || Number(selected[0]) != user.uid}
 						onView={() => console.log('first')} 
-						onEdit={() => console.log('first')} 
+						onEdit={() => navigate(`edit/${selected[0]}`)}
 						onDelete={() => console.log('first')} 
 						onCreate={() => console.log('first')} />
 					<TableContainer>
@@ -106,9 +110,6 @@ const Users = () => {
 							aria-labelledby="tableTitle"
 							size='medium'
 						>
-							{/* <DataTable>
-
-						</DataTable> */}
 							<EnhancedTableHead
 								numSelected={selected.length}
 								order={order}
@@ -119,13 +120,11 @@ const Users = () => {
 								headCells={headCells}
 							/>
 							<TableBody>
-								{/* if you don't need to support IE11, you can replace the `stableSort` call with:
-              rows.slice().sort(getComparator(order, orderBy)) */}
 								{stableSort(users, getComparator(order, orderBy))
 									.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 									.map((row, index) => {
-										const isItemSelected = isSelected(row.id)
-										const labelId = `enhanced-table-checkbox-${index}`
+										const isItemSelected = isSelected(row.id);
+										const labelId = `enhanced-table-checkbox-${index}`;
 
 										return (
 											<TableRow
@@ -158,7 +157,7 @@ const Users = () => {
 												<TableCell align="left">{row.name}</TableCell>
 												<TableCell align="left">{row.level}</TableCell>
 											</TableRow>
-										)
+										);
 									})}
 								{emptyRows > 0 && (
 									<TableRow
@@ -184,10 +183,10 @@ const Users = () => {
 				</Paper>
 			</Box>
 		</>
-	)
-}
+	);
+};
 
-export default Users
+export default Users;
 
 interface UserData {
       index: number;
@@ -222,4 +221,4 @@ const headCells: HeadCell[] = [
 		disablePadding: false,
 		label: 'Level',
 	}
-]
+];

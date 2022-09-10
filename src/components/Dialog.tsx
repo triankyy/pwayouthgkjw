@@ -1,11 +1,11 @@
-import CloseIcon from '@mui/icons-material/Close'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import { styled } from '@mui/material/styles'
-import React from 'react'
+import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import { styled } from '@mui/material/styles';
+import React from 'react';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 	'& .MuiDialogContent-root': {
@@ -14,13 +14,14 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 	'& .MuiDialogActions-root': {
 		padding: theme.spacing(1),
 	},
-}))
+	zIndex: 9999
+}));
 
 const BootstrapDialogTitle = (props: DialogTitleProps) => {
-	const { children, onClose, ...other } = props
+	const { children, onClose, ...other } = props;
 
 	return (
-		<DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+		<DialogTitle sx={{ m: 0, p: 2, minWidth: {md: 500} }} {...other}>
 			{children}
 			{onClose ? (
 				<IconButton
@@ -37,11 +38,11 @@ const BootstrapDialogTitle = (props: DialogTitleProps) => {
 				</IconButton>
 			) : null}
 		</DialogTitle>
-	)
-}
+	);
+};
 
 export default function CustomizedDialogs(props: Props) {
-	const { dialogOpen, onDialogClose, content, title, actionButton } = props
+	const { dialogOpen, onDialogClose, content, title, actionButton } = props;
 
 	return (
 		<>
@@ -63,7 +64,7 @@ export default function CustomizedDialogs(props: Props) {
 				)}
 			</BootstrapDialog>
 		</>
-	)
+	);
 }
 
 interface Props {

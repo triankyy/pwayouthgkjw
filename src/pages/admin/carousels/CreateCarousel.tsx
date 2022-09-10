@@ -1,46 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react'
-import { TextField, Typography, Container, Box, Button, IconButton, CardHeader, Divider } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import CustomCard from '../../../components/Card'
-import { useDropzone } from 'react-dropzone'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { apiUrl } from '../../../utils/config'
-import toastSwal from '../../../components/swal/toastSwal'
+import React from 'react';
+import { TextField, Typography, Container, Box, Button, IconButton, CardHeader, Divider } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CustomCard from '../../../components/Card';
+import { useDropzone } from 'react-dropzone';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { createCarousel } from '../../../utils/apiConstants';
+import toastSwal from '../../../components/swal/toastSwal';
 
 const CreateCarousel = () => {
-	const navigate = useNavigate()
-	const [preview, setPreview] = React.useState<any>()
-	const [image, setImage] = React.useState<any>()
-	const [label, setLabel] = React.useState<string>('')
+	const navigate = useNavigate();
+	const [preview, setPreview] = React.useState<any>();
+	const [image, setImage] = React.useState<any>();
+	const [label, setLabel] = React.useState<string>('');
 	const { getRootProps, getInputProps } = useDropzone({ 
 		maxFiles: 1, 
 		accept: { 'image/png': ['.png'], 'image/jpeg': ['.jpg'] },
 		onDrop: acceptedFiles => {
 			acceptedFiles.map(file => {
-				const filename = file.name
-				const ext = filename.substring(filename.lastIndexOf('.') + 1, filename.length)
+				const filename = file.name;
+				const ext = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
 				if (ext == 'jpg' || ext == 'png') {
-					setPreview(URL.createObjectURL(file))
-					setImage(file)
+					setPreview(URL.createObjectURL(file));
+					setImage(file);
 				}
-			})
+			});
 		}
-	})
+	});
 
 	const handleSubmit = async () => {
-		if (!image || !label) toastSwal({ icon: 'error', title: 'Image and labels cannot be empty!'})
-		const data = new FormData()
-		data.append('image', image)
-		data.append('label', label)
-		await axios.post(`${apiUrl}carousel/create`, data).then(() => {
-			toastSwal({ icon: 'success', title: 'Carousel created successfully!'})
-			navigate(-1)
-		}).catch(err => toastSwal({ icon: 'error', title: err?.data?.message }))
-	}
+		if (!image || !label) toastSwal({ icon: 'error', title: 'Kolom gambar dan label tidak boleh kosong!'});
+		const data = new FormData();
+		data.append('image', image);
+		data.append('label', label);
+		await axios.post(createCarousel, data).then(() => {
+			toastSwal({ icon: 'success', title: 'Data carousel berhasil ditambahkan!'});
+			navigate(-1);
+		}).catch(err => toastSwal({ icon: 'error', title: err?.data?.message }));
+	};
 	return (
-		<Container>
+		<>
 			<CustomCard content={
 				<>
 					<CardHeader 
@@ -51,7 +51,7 @@ const CreateCarousel = () => {
 						}
 						title={
 							<Typography variant='h5'>
-                                                Add Carousel
+                                                Tambah data carousel
 							</Typography>
 						} />
 					<Divider />
@@ -69,7 +69,7 @@ const CreateCarousel = () => {
 											cursor: 'pointer',
 										}} />
 									<Typography sx={{ color: 'grey.500' }}>
-										{'*To delete an uploaded image, just tap on the image'}
+										{'*Ketuk gambar untuk menghapus'}
 									</Typography>
 								</Box>
 							</>
@@ -90,7 +90,7 @@ const CreateCarousel = () => {
 							}}>
 								<input {...getInputProps()} />
 								<Typography sx={{ textAlign: 'center' }}>
-									{'Drag \'n\' drop image here, or click to select image'}
+									{'Drag \'n\' drop gambar di sini, atau klik untuk memilih gambar'}
 								</Typography>
 							</Box>
 						)}
@@ -103,13 +103,13 @@ const CreateCarousel = () => {
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value)}
 						/>
 						<Button variant='contained' fullWidth sx={{ mb: 2 }} onClick={handleSubmit}>
-                                          Submit
+                                          Simpan
 						</Button>
 					</Container>
 				</>
 			} />
-		</Container>
-	)
-}
+		</>
+	);
+};
 
-export default CreateCarousel
+export default CreateCarousel;

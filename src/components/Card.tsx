@@ -1,9 +1,9 @@
-import * as React from 'react'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+import * as React from 'react';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 
 export default function CustomCard(props: Props) {
-	const { content, media, ...rest } = props
+	const { content, media, ...rest } = props;
 	return (
 		<Card {...rest}>
 			{media}
@@ -11,7 +11,7 @@ export default function CustomCard(props: Props) {
 				{content}
 			</CardContent>
 		</Card>
-	)
+	);
 }
 
 interface Props {

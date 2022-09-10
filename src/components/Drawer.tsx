@@ -1,6 +1,6 @@
-import { Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-import React from 'react'
+import { Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Typography } from '@mui/material';
+import { Box } from '@mui/system';
+import React from 'react';
 
 interface Props {
       window?: () => Window;
@@ -9,11 +9,11 @@ interface Props {
       mobileOpen: boolean;
 }
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
 export default function CustomDrawer(props: Props) {
-	const { window, navItems, handleDrawerToggle, mobileOpen } = props
-	const container = window !== undefined ? () => window().document.body : undefined
+	const { window, navItems, handleDrawerToggle, mobileOpen } = props;
+	const container = window !== undefined ? () => window().document.body : undefined;
 	const drawer = (
 		<Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
 			<Typography variant="h6" sx={{ my: 2 }}>
@@ -30,7 +30,7 @@ export default function CustomDrawer(props: Props) {
 				))}
 			</List>
 		</Box>
-	)
+	);
 	return (
 		<Box component="nav">
 			<Drawer
@@ -49,5 +49,5 @@ export default function CustomDrawer(props: Props) {
 				{drawer}
 			</Drawer>
 		</Box>
-	)
+	);
 }

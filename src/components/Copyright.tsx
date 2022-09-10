@@ -1,5 +1,6 @@
-import React from 'react'
-import { Typography, Link, Box } from '@mui/material'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
+import { Typography, Link, Box } from '@mui/material';
 
 
 export default function Copyright(props: any): JSX.Element {
@@ -12,5 +13,5 @@ export default function Copyright(props: any): JSX.Element {
 				</Link>
 			</Typography>
 		</Box>
-	)
+	);
 }

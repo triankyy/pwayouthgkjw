@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 
 const swalCustomClass = Swal.mixin({
 	customClass: {
@@ -6,7 +6,7 @@ const swalCustomClass = Swal.mixin({
 		cancelButton: 'MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedError MuiButton-sizeMedium MuiButton-containedSizeMedium css-1sszw6i-MuiButtonBase-root-MuiButton-root'
 	},
 	buttonsStyling: false
-})
+});
 
 const deleteSwal =  swalCustomClass.fire({
 	title: 'Are you sure?',
@@ -22,7 +22,7 @@ const deleteSwal =  swalCustomClass.fire({
 			'Deleted!',
 			'Your file has been deleted.',
 			'success'
-		)
+		);
 	} else if (
 	/* Read more about handling dismissals below */
 		result.dismiss === Swal.DismissReason.cancel
@@ -31,8 +31,8 @@ const deleteSwal =  swalCustomClass.fire({
 			'Cancelled',
 			'Your imaginary file is safe :)',
 			'error'
-		)
+		);
 	}
-})
+});
 
-export default deleteSwal
+export default deleteSwal;
