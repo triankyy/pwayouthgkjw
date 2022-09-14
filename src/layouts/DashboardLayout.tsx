@@ -15,6 +15,8 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
+import Collapse from '@mui/material/Collapse';
+import ListSubheader from '@mui/material/ListSubheader';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -32,6 +34,10 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import PeopleIcon from '@mui/icons-material/PeopleAltOutlined';
+import CategoryIcon from '@mui/icons-material/CategoryOutlined';
 
 
 const drawerWidth = 240;
@@ -40,6 +46,9 @@ interface DataMenu {
 	title: string;
 	icon: JSX.Element;
 	link: string;
+	expand?: boolean;
+	stateName?: string;
+	item?: DataMenu[];
 }
 
 const dataMaster: Array<DataMenu> = [
@@ -48,9 +57,14 @@ const dataMaster: Array<DataMenu> = [
 	{title: 'Users', icon: <PersonIcon />, link: 'users' },
 ];
 
-const dataFitur: Array<DataMenu> = [
-	{title: 'Jadwal Pelayanan', icon: <CalendarMonthIcon />, link: '' },
-	{title: 'Bazar', icon: <StorefrontIcon />, link: '' },
+const jadwalPelayan: Array<DataMenu> = [
+	{ title: 'Data Pembeli', icon: <PeopleIcon />, link: '' },
+	{ title: 'Data Barang', icon: <CategoryIcon />, link: '' },
+];
+
+const bazarItem: Array<DataMenu> = [
+	{ title: 'Data Pembeli', icon: <PeopleIcon />, link: '' },
+	{ title: 'Data Barang', icon: <CategoryIcon />, link: '' },
 ];
 
 const etc: Array<DataMenu> = [
@@ -102,13 +116,19 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 const DashboardLayout = () => {
+	//Hooks
 	const dispatch = useDispatch();
-	const { width } = useWindowDimensions();
-	const [open, setOpen] = React.useState(width > 600 ? true : false);
 	const navigate = useNavigate();
+	const { width } = useWindowDimensions();
 	const { pathname } = useLocation();
+
+	//States
+	const [open, setOpen] = React.useState(width > 600 ? true : false);
+	const [expandedBazar, setExpandedBazar] = React.useState(false);
+
 	const { location: { href }} = window;
 	
+	//Func
 	const toggleDrawer = () => {
 		setOpen(!open);
 	};
@@ -161,40 +181,51 @@ const DashboardLayout = () => {
 				>
 					<DrawerHeader />
 					<List>
-						<ListItem disablePadding>
-							<ListItemButton onClick={() => navigate('')} selected={href.split('/').pop() == 'admin'}>
-								<ListItemIcon>
-									<DashboardOutlinedIcon />
-								</ListItemIcon>
-								<ListItemText primary='Dashboard' />
-							</ListItemButton>
-						</ListItem>
+						<ListItemButton onClick={() => navigate('')} selected={href.split('/').pop() == 'admin'}>
+							<ListItemIcon>
+								<DashboardOutlinedIcon />
+							</ListItemIcon>
+							<ListItemText primary='Dashboard' />
+						</ListItemButton>
 					</List>
 					<Divider />
-					<List>
-						<ListItem disablePadding>
-							<ListItemButton disabled disableRipple>
-								<ListItemText primary={'Fitur'} />
-							</ListItemButton>
-						</ListItem>
-						{dataFitur.map((val, index) => (
-							<ListItem key={index} disablePadding>
-								<ListItemButton>
-									<ListItemIcon>
-										{val.icon}
-									</ListItemIcon>
-									<ListItemText primary={val.title} />
-								</ListItemButton>
-							</ListItem>
+					<List
+						subheader={<ListSubheader>Fitur</ListSubheader>}>
+						<ListItemButton>
+							<ListItemIcon>
+								<CalendarMonthIcon />
+							</ListItemIcon>
+							<ListItemText primary='Jadwal Pelayan' />
+						</ListItemButton>
+						<ListItemButton onClick={() => setExpandedBazar(!expandedBazar)}>
+							<ListItemIcon>
+								<StorefrontIcon />
+							</ListItemIcon>
+							<ListItemText primary='Bazar' />
+							{expandedBazar ? <ExpandLess /> : <ExpandMore />}
+						</ListItemButton>
+						{bazarItem.map((item, itemIndex) => (
+							<Collapse 
+								in={expandedBazar} 
+								key={itemIndex} 
+								timeout="auto" 
+								unmountOnExit>
+								<List 
+									component="div" 
+									disablePadding>
+									<ListItemButton sx={{ pl: 4 }} onClick={() => navigate(item.link)}>
+										<ListItemIcon>
+											{item.icon}
+										</ListItemIcon>
+										<ListItemText primary={item.title} />
+									</ListItemButton>
+								</List>
+							</Collapse>
 						))}
 					</List>
 					<Divider />
-					<List>
-						<ListItem disablePadding>
-							<ListItemButton disabled disableRipple>
-								<ListItemText primary={'Data Master'} />
-							</ListItemButton>
-						</ListItem>
+					<List
+						subheader={<ListSubheader>Data Master</ListSubheader>}>
 						{dataMaster.map((val) => (
 							<ListItem disablePadding key={val.title}>
 								<ListItemButton onClick={() => navigate(val.link)} selected={pathname.includes(val.link)}>

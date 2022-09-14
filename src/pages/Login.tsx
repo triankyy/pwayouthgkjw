@@ -14,7 +14,7 @@ import { RootState } from '../app/store';
 import { setActiveUser, setUerLogOutState } from '../app/userSlice';
 import Copyright from '../components/Copyright';
 import toastSwal from '../components/swal/toastSwal';
-import { authApi, getAllCarousel, loginApi, rootUrl } from '../utils/apiConstants';
+import { authApi, getAllCarousel, loginApi, staticUrl } from '../utils/apiConstants';
 
 export default function Login(): JSX.Element {
 	const dispatch = useDispatch();
@@ -85,7 +85,7 @@ export default function Login(): JSX.Element {
 				display: 'flex', 
 				justifyContent: 'center', 
 				alignItems: 'center',
-				backgroundImage: `url(${rootUrl}carousels/${background[Math.floor(Math.random() * 3)]?.image})`,
+				backgroundImage: `url(${staticUrl}carousels/${background[Math.floor(Math.random() * 3)]?.image})`,
 				backgroundPosition: 'center',
 				backgroundRepeat: 'no-repeat',
 				backgroundSize: 'cover',

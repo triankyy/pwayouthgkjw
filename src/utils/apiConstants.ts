@@ -1,6 +1,9 @@
 export const rootUrl = 'http://localhost:8000/';
 export const apiUrl = `${rootUrl}api/`;
 
+//static url
+export const staticUrl = rootUrl + 'static/';
+
 //user
 export const userApi = apiUrl + 'user/';
 export const createUser = userApi + 'create';

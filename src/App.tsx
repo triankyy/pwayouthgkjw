@@ -10,6 +10,7 @@ import { Carousel, CreateCarousel, EditCarousel } from './pages/admin/carousels'
 import Home from './pages/admin/Home';
 import { CreateUser, DataUser, EditUser } from './pages/admin/users';
 import { YoutubeContents } from './pages/admin/youtubeContents';
+import EditYoutube from './pages/admin/youtubeContents/EditYoutube';
 import Homepage from './pages/Homepage';
 import Login from './pages/Login';
 import { authApi, logoutApi } from './utils/apiConstants';
@@ -65,6 +66,7 @@ export default function App(): JSX.Element {
 						</Route>
 						<Route path='ytContents'>
 							<Route index element={<YoutubeContents/>} />
+							<Route path='edit/:id' element={<EditYoutube/>} />
 						</Route>
 					</Route>
 				)}

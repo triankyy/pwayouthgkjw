@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Checkbox, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow } from '@mui/material';
 import axios, { AxiosResponse } from 'axios';
+import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { EnhancedTableHead, EnhancedTableToolbar, getComparator, HeadCell, Order, stableSort } from '../../../components/DataTable';
 import CustomizedDialogs from '../../../components/Dialog';
 import toastSwal from '../../../components/swal/toastSwal';
-import { deleteCarousel as hapusCarousel, deleteManyCarousel, getAllCarousel, getCarousel, rootUrl } from '../../../utils/apiConstants';
-import moment from 'moment';
+import { deleteCarousel as hapusCarousel, deleteManyCarousel, getAllCarousel, getCarousel, staticUrl } from '../../../utils/apiConstants';
 
 const Carousel = () => {
 	const navigate = useNavigate();
@@ -236,7 +236,7 @@ const Carousel = () => {
 				dialogOpen={dialogOpen}
 				onDialogClose={handleCloseDialog}
 				title={preview?.label}
-				content={<Box component='img' src={`${rootUrl}carousels/${preview?.image}`} width='100%' />} />
+				content={<Box component='img' src={`${staticUrl}carousels/${preview?.image}`} width='100%' />} />
 		</Box>
 	);
 };

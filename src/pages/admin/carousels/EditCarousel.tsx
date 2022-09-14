@@ -7,7 +7,7 @@ import { useDropzone } from 'react-dropzone';
 import { useNavigate, useParams } from 'react-router-dom';
 import CustomCard from '../../../components/Card';
 import toastSwal from '../../../components/swal/toastSwal';
-import { getCarousel as getOneCarousel, rootUrl, updateCarousel } from '../../../utils/apiConstants';
+import { getCarousel as getOneCarousel, staticUrl, updateCarousel } from '../../../utils/apiConstants';
 
 
 const EditCarousel = () => {
@@ -39,7 +39,7 @@ const EditCarousel = () => {
 		await axios.get(getOneCarousel + param.id).then(res => {
 			const data = res.data;
 			setLabel(data?.label);
-			setPreview(`${rootUrl}carousels/${data?.image}`);
+			setPreview(`${staticUrl}carousels/${data?.image}`);
 		}).catch(err => toastSwal({ icon: 'error', title: err?.data?.message }));
 	};
 
@@ -53,7 +53,7 @@ const EditCarousel = () => {
 		const data = new FormData();
 		data.append('image', image);
 		data.append('label', label);
-		await axios.post(updateCarousel + param.id, data).then(() => {
+		await axios.patch(updateCarousel + param.id, data).then(() => {
 			toastSwal({ icon: 'success', title: 'Data carousel berhasil diupdate!' });
 			navigate(-1);
 		}).catch(err => toastSwal({ icon: 'error', title: err?.data?.message }));

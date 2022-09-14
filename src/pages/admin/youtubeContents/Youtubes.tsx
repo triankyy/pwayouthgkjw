@@ -6,9 +6,11 @@ import { getAllYoutube } from '../../../utils/apiConstants';
 import { IYoutube } from '../../../utils/interfaces';
 import CustomizedDialogs from '../../../components/Dialog';
 import YoutubeIframe from '../../../components/YoutubeIframe';
+import { useNavigate } from 'react-router-dom';
 
 
 const Youtubes: React.FC = () => {
+	const navigate = useNavigate();
 	const [loading, setLoading] = React.useState<boolean>(false);
 	const [yt, setYt] = React.useState<Array<Yt>>([]);
 	const [order, setOrder] = React.useState<Order>('asc');
@@ -23,10 +25,7 @@ const Youtubes: React.FC = () => {
 		setDialogOpen(false);
 	};
 
-	const handleRequestSort = (
-		event: React.MouseEvent<unknown>,
-		property: keyof Yt,
-	): void => {
+	const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Yt): void => {
 		const isAsc = orderBy === property && order === 'asc';
 		setOrder(isAsc ? 'desc' : 'asc');
 		setOrderBy(property);
@@ -97,11 +96,6 @@ const Youtubes: React.FC = () => {
 		});
 	};
 
-	const viewYoutube = async (id: number): Promise<void> => {
-		setDialogOpen(true);
-	};
-
-
 	return (
 		<>
 			<Box width='100%'>
@@ -109,8 +103,8 @@ const Youtubes: React.FC = () => {
 					<EnhancedTableToolbar
 						numSelected={selected.length}
 						title='Konten Youtube'
-						onView={() => viewYoutube(Number(selected[0]))}
-						onEdit={() => console.log()}
+						onView={() => setDialogOpen(true)}
+						onEdit={() => selected.length == 1 && navigate(`edit/${selected[0]}`)}
 						onDelete={() => console.log('first')}
 						onCreate={() => console.log('first')} />
 					{loading && (<LinearProgress />)}

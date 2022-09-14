@@ -9,7 +9,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Container } from '@mui/system';
 import YoutubeIframe from '../components/YoutubeIframe';
 import CustomDrawer from '../components/Drawer';
-import { getAllCarousel, getAllYoutube } from '../utils/apiConstants';
+import { getAllCarousel, getAllYoutube, staticUrl } from '../utils/apiConstants';
 import { IYoutube } from '../utils/interfaces';
 
 axios.defaults.withCredentials = true;
@@ -104,7 +104,7 @@ const Homepage = (): JSX.Element => {
 									display: 'block',
 									overflow: 'hidden',
 									width: '100%',
-									backgroundImage: 'url(http://localhost:8000/carousels/' + step.image + ')',
+									backgroundImage: `url(${staticUrl}/carousels/${step.image})`,
 									backgroundPosition: 'center',
 									backgroundRepeat: 'no-repeat',
 									backgroundSize: 'cover',
