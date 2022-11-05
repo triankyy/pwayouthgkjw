@@ -1,18 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow } from '@mui/material';
-import axios from 'axios';
+import {
+	Box,
+	Checkbox,
+	Paper,
+	Table,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TablePagination,
+	TableRow,
+	LinearProgress,
+	Typography,
+	IconButton,
+	Tooltip
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../../app/store';
 import { EnhancedTableHead, EnhancedTableToolbar, getComparator, HeadCell, Order, stableSort } from '../../../components/DataTable';
-import toastSwal from '../../../components/swal/toastSwal';
-import { getAllUser } from '../../../utils/apiConstants';
+import { UserInterface } from '../../../interfaces/user.interface';
+import { useGetAllQuery } from '../../../services/users.service';
+import _ from 'lodash';
 
 const Users = () => {
-	const [users, setUsers] = React.useState<Array<UserData>>([]);
+	const { data, error, isLoading, isFetching, isSuccess } = useGetAllQuery();
 	const [order, setOrder] = React.useState<Order>('asc');
-	const [orderBy, setOrderBy] = React.useState<keyof UserData>('index');
+	const [orderBy, setOrderBy] = React.useState<keyof UserInterface>('id');
 	const [selected, setSelected] = React.useState<readonly string[]>([]);
 	const [page, setPage] = React.useState(0);
 	const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -22,7 +38,7 @@ const Users = () => {
 
 	const handleRequestSort = (
 		event: React.MouseEvent<unknown>,
-		property: keyof UserData,
+		property: keyof UserInterface,
 	): void => {
 		const isAsc = orderBy === property && order === 'asc';
 		setOrder(isAsc ? 'desc' : 'asc');
@@ -31,7 +47,7 @@ const Users = () => {
 
 	const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>): void => {
 		if (event.target.checked) {
-			const newSelected = users.map((n) => n.id);
+			const newSelected = isSuccess ? data.map((n) => n.id.toString()) : [];
 			setSelected(newSelected);
 			return;
 		}
@@ -56,7 +72,7 @@ const Users = () => {
 		}
 		setSelected(newSelected);
 	};
-
+ 
 	const handleChangePage = (event: unknown, newPage: number): void => {
 		setPage(newPage);
 	};
@@ -69,27 +85,7 @@ const Users = () => {
 	const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
 	// Avoid a layout jump when reaching the last page with empty rows.
-	const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
-
-	React.useEffect(() => {
-		getUsers();
-	}, []);
-
-	const getUsers = async (): Promise<void> => {
-		await axios.get(getAllUser).then((res) => {
-			const data: [] = res.data;
-			setUsers([]);
-			data.map((el: any, index: number) => {
-				setUsers((prev) => [...prev, {
-					index: index+1,
-					email: el.email,
-					name: el.name,
-					level: el.level,
-					id: el.id
-				}]);
-			});
-		}).catch((err) => toastSwal({icon: 'error', title: err?.data?.message}));
-	};
+	const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - (isSuccess ? data.length : 0)) : 0;
 
 	return (
 		<>
@@ -98,84 +94,95 @@ const Users = () => {
 					<EnhancedTableToolbar 
 						numSelected={selected.length} 
 						title='Users Data'
-						disableEdit={selected.length > 1 || Number(selected[0]) != user.uid}
 						disableDelete={selected.length > 1 || Number(selected[0]) != user.uid}
-						onView={() => console.log('first')} 
-						onEdit={() => navigate(`edit/${selected[0]}`)}
 						onDelete={() => console.log('first')} 
 						onCreate={() => console.log('first')} />
-					<TableContainer>
-						<Table
-							sx={{ minWidth: 750 }}
-							aria-labelledby="tableTitle"
-							size='medium'
-						>
-							<EnhancedTableHead
-								numSelected={selected.length}
-								order={order}
-								orderBy={orderBy}
-								onSelectAllClick={handleSelectAllClick}
-								onRequestSort={handleRequestSort}
-								rowCount={users.length}
-								headCells={headCells}
-							/>
-							<TableBody>
-								{stableSort(users, getComparator(order, orderBy))
-									.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-									.map((row, index) => {
-										const isItemSelected = isSelected(row.id);
-										const labelId = `enhanced-table-checkbox-${index}`;
-
-										return (
+					{isLoading && <LinearProgress  />}
+					<TableContainer style={{height: '65vh'}}>
+						{isLoading ? <Typography sx={{textAlign: 'center', marginTop: 2}}>Loading...</Typography> : 
+							<>
+								<Table
+									sx={{ minWidth: 750 }}
+									aria-labelledby="tableTitle"
+									size='medium'
+								>
+									<EnhancedTableHead
+										numSelected={selected.length}
+										order={order}
+										orderBy={orderBy}
+										onSelectAllClick={handleSelectAllClick}
+										onRequestSort={handleRequestSort}
+										rowCount={isSuccess ? data.length : 0}
+										headCells={headCells}
+									/>
+									<TableBody>
+										{/* {isSuccess && stableSort(, getComparator(order, orderBy)) */}
+										{isSuccess && data
+											.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+											.map((row, index) => {
+												const isItemSelected = isSelected(row.id.toString());
+												const labelId = `enhanced-table-checkbox-${index}`;
+												return (
+													<TableRow
+														hover
+														role="checkbox"
+														aria-checked={isItemSelected}
+														tabIndex={-1}
+														key={row.id}
+														selected={isItemSelected}
+													>
+														<TableCell padding="checkbox">
+															<Checkbox
+																onClick={(event) => handleClick(event, row.id.toString())}
+																color="primary"
+																checked={isItemSelected}
+																inputProps={{
+																	'aria-labelledby': labelId,
+																}}
+															/>
+														</TableCell>
+														<TableCell
+															component="th"
+															id={labelId}
+															scope="row"
+															padding="none"
+														>
+															{index + 1}
+														</TableCell>
+														<TableCell align="left">{row.email}</TableCell>
+														<TableCell align="left">{row.name}</TableCell>
+														<TableCell align="left">{row.roles.map(({name}) => name)}</TableCell>
+														<TableCell align="left">
+															<Tooltip title="Edit">
+																<IconButton
+																	onClick={() => navigate(`edit/${row.id.toString()}`)}
+																>
+																	<EditIcon />
+																</IconButton>
+															</Tooltip>
+														</TableCell>
+													</TableRow>
+												);
+											})}
+										{emptyRows > 0 && (
 											<TableRow
-												hover
-												onClick={(event) => handleClick(event, row.id)}
-												role="checkbox"
-												aria-checked={isItemSelected}
-												tabIndex={-1}
-												key={row.id}
-												selected={isItemSelected}
+												style={{
+													height: 53 * emptyRows,
+												}}
 											>
-												<TableCell padding="checkbox">
-													<Checkbox
-														color="primary"
-														checked={isItemSelected}
-														inputProps={{
-															'aria-labelledby': labelId,
-														}}
-													/>
-												</TableCell>
-												<TableCell
-													component="th"
-													id={labelId}
-													scope="row"
-													padding="none"
-												>
-													{row.index}
-												</TableCell>
-												<TableCell align="left">{row.email}</TableCell>
-												<TableCell align="left">{row.name}</TableCell>
-												<TableCell align="left">{row.level}</TableCell>
+												<TableCell colSpan={6} />
 											</TableRow>
-										);
-									})}
-								{emptyRows > 0 && (
-									<TableRow
-										style={{
-											height: 53 * emptyRows,
-										}}
-									>
-										<TableCell colSpan={6} />
-									</TableRow>
-								)}
-							</TableBody>
-						</Table>
+										)}
+									</TableBody>
+								</Table>
+							</>
+						}
 					</TableContainer>
 					<TablePagination
 						rowsPerPageOptions={[5, 10, 25]}
 						component="div"
-						count={users.length}
-						rowsPerPage={rowsPerPage}
+						count={isSuccess ? data.length : 0}
+						rowsPerPage={10}
 						page={page}
 						onPageChange={handleChangePage}
 						onRowsPerPageChange={handleChangeRowsPerPage}
@@ -187,14 +194,6 @@ const Users = () => {
 };
 
 export default Users;
-
-interface UserData {
-      index: number;
-      email: string;
-      name: string;
-      level: string;
-      id: string;
-}
 
 const headCells: HeadCell[] = [
 	{
@@ -216,9 +215,15 @@ const headCells: HeadCell[] = [
 		label: 'Name',
 	},
 	{
-		id: 'level',
+		id: 'role',
 		numeric: false,
 		disablePadding: false,
-		label: 'Level',
+		label: 'Roles',
+	},
+	{
+		id: 'action',
+		numeric: false,
+		disablePadding: false,
+		label: 'Aksi',
 	}
 ];

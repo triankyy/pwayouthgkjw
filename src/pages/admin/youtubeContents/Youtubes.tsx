@@ -103,8 +103,6 @@ const Youtubes: React.FC = () => {
 					<EnhancedTableToolbar
 						numSelected={selected.length}
 						title='Konten Youtube'
-						onView={() => setDialogOpen(true)}
-						onEdit={() => selected.length == 1 && navigate(`edit/${selected[0]}`)}
 						onDelete={() => console.log('first')}
 						onCreate={() => console.log('first')} />
 					{loading && (<LinearProgress />)}

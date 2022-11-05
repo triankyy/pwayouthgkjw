@@ -145,8 +145,6 @@ const Carousel = () => {
 					numSelected={selected.length} 
 					title='Data Carousel' 
 					onCreate={() => navigate('create')}
-					onView={() => viewCarousel(Number(selected[0]))} 
-					onEdit={() => navigate('edit/' + selected[0])} 
 					onDelete={() => deleteCarousel()} 
 				/>
 				{loading && (<LinearProgress />)}

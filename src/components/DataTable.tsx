@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { alpha, Box, Checkbox, IconButton, TableCell, TableHead, TableRow, TableSortLabel, Toolbar, Tooltip, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import React from 'react';
@@ -71,18 +69,18 @@ export function EnhancedTableHead(props: EnhancedTableProps): JSX.Element {
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 						sortDirection={orderBy === headCell.id ? order : false}
 					>
-						<TableSortLabel
+						{/* <TableSortLabel
 							active={orderBy === headCell.id}
 							direction={orderBy === headCell.id ? order : 'asc'}
 							onClick={createSortHandler(headCell.id)}
-						>
-							{headCell.label}
-							{orderBy === headCell.id ? (
-								<Box component="span" sx={visuallyHidden}>
-									{order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-								</Box>
-							) : null}
-						</TableSortLabel>
+						> */}
+						{headCell.label}
+						{orderBy === headCell.id ? (
+							<Box component="span" sx={visuallyHidden}>
+								{order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+							</Box>
+						) : null}
+						{/* </TableSortLabel> */}
 					</TableCell>
 				))}
 			</TableRow>
@@ -91,7 +89,7 @@ export function EnhancedTableHead(props: EnhancedTableProps): JSX.Element {
 }
 
 export function EnhancedTableToolbar(props: EnhancedTableToolbarProps): JSX.Element {
-	const { numSelected, title, onEdit, onView, onDelete, onCreate, disableView, disableEdit, disableDelete, disableCreate } = props;
+	const { numSelected, title, onDelete, onCreate, disableDelete, disableCreate } = props;
 
 	return (
 		<>
@@ -124,25 +122,7 @@ export function EnhancedTableToolbar(props: EnhancedTableToolbarProps): JSX.Elem
 					</Typography>
 				)}
 				{numSelected > 0 ? (
-					<>
-						{disableView || (
-							<Tooltip title='Preview Data'>
-								<span>
-									<IconButton disabled={numSelected > 1} onClick={() => onView && onView()}>
-										<VisibilityIcon />
-									</IconButton>
-								</span>
-							</Tooltip>
-						)}
-						{disableEdit || (
-							<Tooltip title='Edit Data'>
-								<span>
-									<IconButton disabled={numSelected > 1} onClick={() => onEdit && onEdit()}>
-										<EditIcon />
-									</IconButton>
-								</span>
-							</Tooltip>
-						)}
+					<>						
 						{disableDelete || (
 							<Tooltip title='Delete Data'>
 								<IconButton onClick={() => onDelete && onDelete()}>
@@ -189,12 +169,8 @@ interface EnhancedTableProps {
 interface EnhancedTableToolbarProps {
 	numSelected: number;
 	title: string;
-	onView?: () => void;
-	onEdit?: () => void;
 	onDelete?: () => void;
 	onCreate?: () => void;
-	disableView?: boolean
-	disableEdit?: boolean
 	disableDelete?: boolean
 	disableCreate?: boolean
 }

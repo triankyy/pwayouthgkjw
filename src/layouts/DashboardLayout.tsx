@@ -38,6 +38,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PeopleIcon from '@mui/icons-material/PeopleAltOutlined';
 import CategoryIcon from '@mui/icons-material/CategoryOutlined';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 
 const drawerWidth = 240;
@@ -54,7 +55,13 @@ interface DataMenu {
 const dataMaster: Array<DataMenu> = [
 	{title: 'Carousels', icon: <ViewCarouselIcon />, link: 'carousels' },
 	{title: 'Youtubes', icon: <YouTubeIcon />, link: 'ytContents' },
-	{title: 'Users', icon: <PersonIcon />, link: 'users' },
+	// {title: 'Users', icon: <PersonIcon />, link: 'users' },
+];
+
+const userItem: Array<DataMenu> = [
+	{title: 'Data User', icon: <RadioButtonUncheckedIcon />, link: 'users'},
+	{title: 'Data Wilayah', icon: <RadioButtonUncheckedIcon />, link: 'wilayah'},
+	{title: 'Data Role', icon: <RadioButtonUncheckedIcon />, link: 'role'},
 ];
 
 const jadwalPelayan: Array<DataMenu> = [
@@ -116,6 +123,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 const DashboardLayout = () => {
+	const dashBoardExpanded: Array<string> = ['userExpanded', 'bazarExpanded'];
+
 	//Hooks
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -124,9 +133,14 @@ const DashboardLayout = () => {
 
 	//States
 	const [open, setOpen] = React.useState(width > 600 ? true : false);
-	const [expandedBazar, setExpandedBazar] = React.useState(false);
+	const [expandedBazar, setExpandedBazar] = React.useState(localStorage.getItem('bazarExpanded') == 'true' ? true : false);
+	const [expandedUser, setExpandedUser] = React.useState(localStorage.getItem('userExpanded') == 'true' ? true : false);
 
 	const { location: { href }} = window;
+
+	React.useEffect(() => {
+		dashBoardExpanded.map(e => localStorage.getItem(e) ?? localStorage.setItem(e, 'false'));
+	}, []);
 	
 	//Func
 	const toggleDrawer = () => {
@@ -197,7 +211,10 @@ const DashboardLayout = () => {
 							</ListItemIcon>
 							<ListItemText primary='Jadwal Pelayan' />
 						</ListItemButton>
-						<ListItemButton onClick={() => setExpandedBazar(!expandedBazar)}>
+						<ListItemButton onClick={() => {
+							setExpandedBazar(!expandedBazar);
+							localStorage.setItem('bazarExpanded', localStorage.getItem('bazarExpanded') == 'true' ? 'false' : 'true');
+						}}>
 							<ListItemIcon>
 								<StorefrontIcon />
 							</ListItemIcon>
@@ -226,6 +243,34 @@ const DashboardLayout = () => {
 					<Divider />
 					<List
 						subheader={<ListSubheader>Data Master</ListSubheader>}>
+						<ListItemButton onClick={() => {
+							setExpandedUser(!expandedUser);
+							localStorage.setItem('userExpanded', localStorage.getItem('userExpanded') == 'true' ? 'false' : 'true');
+						}}>
+							<ListItemIcon>
+								<PersonIcon />
+							</ListItemIcon>
+							<ListItemText primary='User' />
+							{expandedUser ? <ExpandLess /> : <ExpandMore />}
+						</ListItemButton>
+						{userItem.map((item, itemIndex) => (
+							<Collapse 
+								in={expandedUser} 
+								key={itemIndex} 
+								timeout="auto" 
+								unmountOnExit>
+								<List 
+									component="div" 
+									disablePadding>
+									<ListItemButton sx={{ pl: 4 }} onClick={() => navigate(item.link)} selected={pathname.includes(item.link)}>
+										<ListItemIcon>
+											{item.icon}
+										</ListItemIcon>
+										<ListItemText primary={item.title} />
+									</ListItemButton>
+								</List>
+							</Collapse>
+						))}
 						{dataMaster.map((val) => (
 							<ListItem disablePadding key={val.title}>
 								<ListItemButton onClick={() => navigate(val.link)} selected={pathname.includes(val.link)}>
